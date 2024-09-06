@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html class="no-js js-preload" lang="en" data-root-url="<%= root_url %>">
+  <head>
+    <%= render 'layouts/shared_head' %>
+    <meta name="turbo-cache-control" content="no-cache">
+    <%= stylesheet_link_tag 'application', media: 'all' %>
+    <%#= favicon_link_tag 'favicon.png', rel: 'icon', type: 'image/png' %>
+    <%= javascript_include_tag 'application', defer: true %>
+  </head>
+  <body class="<%= @html_classes.try(:join, ' ') %>">
+    <%= render 'shared/header' %>
+    <main id="application-wrapper" class="application-wrapper d-flex flex-column">
+      <%= yield %>
+    </main>
+    <%= render 'shared/footer' %>
+  </body>
+</html>
