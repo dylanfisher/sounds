@@ -2,7 +2,6 @@
 
 // Vendor
 import 'lazysizes';
-import '@hotwired/turbo-rails';
 
 // Application
 import './main';
