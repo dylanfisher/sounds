@@ -164,3 +164,8 @@ lodash@^4.17:
   version "4.17.21"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
+
+wavesurfer.js@^7.8.5:
+  version "7.8.5"
+  resolved "https://registry.yarnpkg.com/wavesurfer.js/-/wavesurfer.js-7.8.5.tgz#4577502f13e4ffbaa005501c81d500e28a93c1cb"
+  integrity sha512-z3+p2ruYElXFSnxVrIPLcfziQCovf8Jngeq6UIntKeBDBUwveQ6YWf21d5BfYDZM5QoY3DkM91BETvgwZdTYUQ==

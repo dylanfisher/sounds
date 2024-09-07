@@ -7,7 +7,8 @@
     "gsap": "^3.11.5",
     "jquery": "^3.6",
     "lazysizes": "^5.3",
-    "lodash": "^4.17"
+    "lodash": "^4.17",
+    "wavesurfer.js": "^7.8.5"
   },
   "scripts": {
     "build": "esbuild app/javascript/*.* --bundle --sourcemap --outdir=app/assets/builds --public-path=assets"

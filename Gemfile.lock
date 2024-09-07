@@ -203,6 +203,8 @@ GEM
     method_source (1.1.0)
     mini_mime (1.1.5)
     minitest (5.25.1)
+    mp3info (0.8.5)
+      ruby-mp3info (>= 0.8.5)
     msgpack (1.7.2)
     net-http (0.4.1)
       uri
@@ -296,6 +298,7 @@ GEM
       railties (>= 5.2)
     roda (3.83.0)
       rack
+    ruby-mp3info (0.8.10)
     sassc (2.4.0)
       ffi (~> 1.9)
     sassc-rails (2.1.2)
@@ -357,6 +360,7 @@ DEPENDENCIES
   dalli
   forest (~> 3.0)!
   jsbundling-rails
+  mp3info (~> 0.8)
   ostruct
   pg (~> 1.1)
   pry-rails

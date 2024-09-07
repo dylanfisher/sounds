@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_09_06_174292) do
+ActiveRecord::Schema[7.2].define(version: 2024_09_07_182659) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -72,6 +72,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_06_174292) do
     t.boolean "retain_source", default: false, null: false
     t.bigint "poster_image_id"
     t.jsonb "video_data"
+    t.jsonb "sound_metadata"
     t.index "((attachment_data -> 'derivatives'::text))", name: "index_media_items_on_attachment_data_derivatives", using: :gin
     t.index ["attachment_content_type"], name: "index_media_items_on_attachment_content_type"
     t.index ["attachment_data"], name: "index_media_items_on_attachment_data", using: :gin
@@ -141,6 +142,23 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_06_174292) do
     t.index ["setting_status"], name: "index_settings_on_setting_status"
   end
 
+  create_table "sounds", force: :cascade do |t|
+    t.string "title"
+    t.date "date"
+    t.bigint "media_item_id", null: false
+    t.text "description"
+    t.text "waveform"
+    t.text "metadata"
+    t.string "slug"
+    t.integer "status", default: 1, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "artist"
+    t.index ["media_item_id"], name: "index_sounds_on_media_item_id"
+    t.index ["slug"], name: "index_sounds_on_slug", unique: true
+    t.index ["status"], name: "index_sounds_on_status"
+  end
+
   create_table "user_groups", id: :serial, force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", precision: nil, null: false
@@ -180,4 +198,5 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_06_174292) do
   add_foreign_key "block_slots", "block_kinds"
   add_foreign_key "block_slots", "block_layouts"
   add_foreign_key "media_items", "media_items", column: "poster_image_id"
+  add_foreign_key "sounds", "media_items"
 end

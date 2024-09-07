@@ -44,7 +44,7 @@ App.currentOrientation = undefined;
 // On page load
 //////////////////////////////////////////////////////////////
 
-App.$document.on('turbo:load', function() {
+$(function() {
   App.scrollTop = App.$window.scrollTop();
 
   App.windowWidth  = App.$window.width();

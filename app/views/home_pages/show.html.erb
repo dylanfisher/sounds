@@ -1,0 +1,22 @@
+<% cache [@page, application_cache_key], expires_in: 4.weeks do %>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col">
+        <table width="100%">
+          <tr>
+            <th>date</th>
+            <th>climber</th>
+            <th>topography</th>
+          </tr>
+          <% @sounds.each do |sound| %>
+            <tr>
+              <td width="10%"><%= sound.date %></td>
+              <td width="10%"><%= sound.artist %></td>
+              <td width="80%"><%= content_tag :div, nil, class: 'sound', data: { url: sound.media_item.attachment.url, waveform: sound.waveform } %></td>
+            </tr>
+          <% end %>
+        </table>
+      </div>
+    </div>
+  </div>
+<% end %>

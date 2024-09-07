@@ -1,0 +1,22 @@
+<% cache application_cache_key, expires_in: 4.weeks do %>
+  <%= render 'admin/shared/breadcrumbs' %>
+  <div class="card mb-3">
+    <h1 class="card-header h2 border-bottom-0 d-flex align-items-center">
+      Sounds
+      <span class="h3 my-0 ml-auto">Forest CMS</span>
+    </h1>
+  </div>
+  <% @_rendered_resources = [] %>
+  <%= render 'admin/dashboard/panel',
+             title: 'Content',
+             resources: [Page, MediaItem, Menu, Setting] %>
+  <%= render 'admin/dashboard/panel',
+             title: 'Sounds',
+             resources: [Sound] %>
+  <%= render 'admin/dashboard/panel',
+             title: 'Users',
+             resources: [User, UserGroup] %>
+  <%= render 'admin/dashboard/panel',
+             title: 'Admin',
+             resources: @admin_resources - @_rendered_resources %>
+<% end %>
