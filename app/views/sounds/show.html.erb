@@ -7,7 +7,7 @@
       <%= simple_form_for [:admin, @sound], html: { class: 'd-none' } do |f| %>
         <hr>
         Waveform:
-        <%= f.input :waveform, label: false %>
+        <%= f.input :waveform, label: false, input_html: { class: 'w-100' } %>
         <hr>
         <%= f.submit 'Upload waveform data to server' %>
       <% end %>

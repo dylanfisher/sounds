@@ -1,0 +1,27 @@
+.sounds-table {
+  width: 100%;
+  table-layout: fixed;
+
+  tr {
+    text-align: left;
+  }
+
+  th {
+    width: 8%;
+
+    &:last-child {
+      @include breakpoint(md) {
+        width: 50%;
+      }
+    }
+  }
+
+  th + th,
+  td + td {
+    padding-left: 5px;
+  }
+}
+
+.play-sound-button {
+  min-width: 60px;
+}

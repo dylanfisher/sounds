@@ -17,7 +17,7 @@ gem "rack-cors", require: "rack/cors"
 gem "builder"
 gem "jsbundling-rails"
 gem "ostruct"
-gem "mp3info", "~> 0.8"
+gem "ruby-mp3info"
 
 group :development do
   gem "pry-rails"

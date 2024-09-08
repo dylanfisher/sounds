@@ -2,7 +2,7 @@ class Admin::SoundsController < Admin::ForestController
   before_action :set_sound, only: [:edit, :update, :destroy]
 
   def index
-    @pagy, @sounds = pagy apply_scopes(Sound).by_id
+    @pagy, @sounds = pagy apply_scopes(Sound).by_date
     authorize @sounds, :admin_index?
   end
 
@@ -46,7 +46,7 @@ class Admin::SoundsController < Admin::ForestController
 
   def sound_params
     # Add blockable params to the permitted attributes if this record is blockable `**BlockSlot.blockable_params`
-    params.require(:sound).permit(:slug, :status, :title, :date, :media_item_id, :description, :waveform, :metadata, :artist)
+    params.require(:sound).permit(:slug, :status, :title, :date, :media_item_id, :description, :waveform, :metadata, :artist, :stars)
   end
 
   def set_sound

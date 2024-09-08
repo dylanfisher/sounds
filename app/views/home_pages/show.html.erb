@@ -2,18 +2,50 @@
   <div class="container-fluid">
     <div class="row">
       <div class="col">
-        <table width="100%">
+        <table class="sounds-table">
           <tr>
-            <th>date</th>
-            <th>climber</th>
-            <th>topography</th>
+            <th>Date</th>
+            <th>Title</th>
+            <th>Alias</th>
+            <th>TR Words</th>
+            <th class="d-none d-md-block">Rating</th>
+            <th>Duration</th>
+            <th>
+              <div class="d-md-none">Audio</div>
+              <div class="d-none d-md-block">Topography</div>
+            </th>
           </tr>
           <% @sounds.each do |sound| %>
-            <tr>
-              <td width="10%"><%= sound.date %></td>
-              <td width="10%"><%= sound.artist %></td>
-              <td width="80%"><%= content_tag :div, nil, class: 'sound', data: { url: sound.media_item.attachment.url, waveform: sound.waveform } %></td>
-            </tr>
+            <%= content_tag :tr, class: 'sound-wrapper', data: { id: sound.id } do %>
+              <td><%= sound.date %></td>
+              <td><%= link_to sound.title, sound.media_item.attachment.url, download: true, target: '_blank' %></td>
+              <td><%= sound.artist %></td>
+              <td>
+                <% if sound.description.present? %>
+                  <%= link_to "TR-#{sound.description.split.length}", '#', class: 'tr-words-link' %>
+                <% else %>
+                  —
+                <% end %>
+              <td class="d-none d-md-block">
+                <%= '★' * sound.stars + '☆' * (5 - sound.stars) %>
+              </td>
+              <td>
+                <%= sound.duration %>
+              </td>
+              <td>
+                <div class="d-flex">
+                  <%= content_tag :div, nil, class: 'sound d-none d-md-block w-100', data: { url: sound.media_item.attachment.url, waveform: sound.waveform } %>
+                  <button class="play-sound-button ms-3">Play</button>
+                </div>
+              </td>
+            <% end %>
+            <%= content_tag :tr, class: 'd-none sound-tr', data: { id: sound.id } do %>
+              <td colspan="7" class="pb-3">
+                <strong>Trip Report</strong>
+                <br>
+                <%= md sound.description %>
+              </td>
+            <% end %>
           <% end %>
         </table>
       </div>

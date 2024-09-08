@@ -23,10 +23,15 @@
               <div class="col-md-6">
                 <%= render 'admin/form_inputs/status', f: f, record: @sound %>
                 <%= f.association :media_item, label: 'mp3 File', remote: { path: admin_media_items_path(audio: true) } %>
+                <%= f.input :stars %>
                 <%= f.input :waveform %>
+                <% if f.object.waveform.blank? && !@sound.new_record? %>
+                  <%= link_to 'Create waveform!', sound_path(@sound.to_friendly_param), target: '_blank', class: 'btn btn-primary' %>
+                <% end %>
                 <%= f.button :submit, class: 'btn-success d-md-none' %>
               </div>
             </div>
+            <hr>
             <div class="row small-gutters">
               <div class="col">
                 <pre>

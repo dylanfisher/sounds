@@ -1,3 +1,5 @@
+require "mp3info"
+
 class MediaItem < Forest::ApplicationRecord
   include BaseMediaItem
 
