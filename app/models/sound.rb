@@ -4,7 +4,7 @@ class Sound < Forest::ApplicationRecord
 
   belongs_to :media_item
 
-  validates :title, :artist, :date, presence: true
+  validates :title, :artist, :date, :stars, presence: true
 
   scope :by_date, -> { order(date: :desc, id: :desc) }
 

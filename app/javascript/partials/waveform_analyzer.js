@@ -10,7 +10,6 @@ App.pageLoad.push(function() {
   var $loadingMessage = $('#waveform-loading-message')
   var $form = $parent.find('form')
   var $metadata = $form.find('#sound_waveform')
-  var metadataValue = $metadata.val()
   var wavesurfer = WaveSurfer.create({
     container: $waveform[0],
     waveColor: '#000000',
@@ -19,16 +18,12 @@ App.pageLoad.push(function() {
     cursorWidth: 0,
   })
 
-  if ( metadataValue ) {
-    wavesurfer.load($waveform.attr('data-url'), JSON.parse(metadataValue))
-  } else {
-    wavesurfer.load($waveform.attr('data-url'))
-  }
+  wavesurfer.load($waveform.attr('data-url'))
 
   wavesurfer.on('ready', function () {
     $loadingMessage.remove()
 
-    var peaks = wavesurfer.exportPeaks()
+    var peaks = wavesurfer.exportPeaks({ maxLength: 2000 })
 
     $form.removeClass('d-none')
     $metadata.val(JSON.stringify(peaks))
