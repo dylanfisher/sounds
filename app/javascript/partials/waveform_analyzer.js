@@ -46,26 +46,46 @@ App.pageLoad.push(function() {
     }
   }
 
-  $sounds.each(function() {
-    var $sound = $(this)
-    var $wrapper = $sound.closest('.sound-wrapper')
-    var $button = $wrapper.find('.play-sound-button')
-    var wavesurfer = WaveSurfer.create({
-      container: $sound[0],
-      waveColor: '#000000',
-      progressColor: '#55198B',
-      height: 24,
-      cursorWidth: 0,
+  var initSounds = function() {
+    $sounds.each(function() {
+      var $sound = $(this)
+      var $wrapper = $sound.closest('.sound-wrapper')
+      var $button = $wrapper.find('.play-sound-button')
+      var wavesurfer = WaveSurfer.create({
+        container: $sound[0],
+        waveColor: '#000000',
+        progressColor: '#55198B',
+        height: 24,
+        cursorWidth: 0,
+      })
+
+      $sound.data('wavesurfer', wavesurfer)
+
+      wavesurfer.load($sound.attr('data-url'), JSON.parse($wrapper.data('waveform')))
+
+      wavesurfer.on('click', () => {
+        wavesurfer.play()
+        playPauseCallback(wavesurfer, $button)
+      })
     })
+  }
 
-    $sound.data('wavesurfer', wavesurfer)
+  $.ajax({
+    url: '/sounds/waveforms',
+    type: 'GET',
+    dataType: 'json',
+    success: function(data) {
+      data['items'].forEach(function(item) {
+        var $wrapper = $(`.sound-wrapper[data-id="${item.id}"]`)
 
-    wavesurfer.load($sound.attr('data-url'), JSON.parse($sound.attr('data-waveform')))
+        $wrapper.data('waveform', item.waveform)
+      })
 
-    wavesurfer.on('click', () => {
-      wavesurfer.play()
-      playPauseCallback(wavesurfer, $button)
-    })
+      initSounds()
+    },
+    error: function(xhr, status, error) {
+      console.error(error)
+    }
   })
 
   App.$document.on('click', '.play-sound-button', function() {

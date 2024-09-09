@@ -5,6 +5,11 @@ class SoundsController < ForestController
     authorize @sound
   end
 
+  def waveforms
+    @sounds = Sound.all.published
+    authorize @sounds
+  end
+
   private
 
   def set_sound

@@ -34,8 +34,8 @@
               </td>
               <td>
                 <div class="d-flex">
-                  <%= content_tag :div, nil, class: 'sound d-none d-md-block w-100', data: { url: sound.media_item.attachment.url, waveform: sound.waveform } %>
-                  <button class="play-sound-button ms-3">Play</button>
+                  <button class="play-sound-button me-3">Play</button>
+                  <%= content_tag :div, nil, class: 'sound d-none d-md-block w-100', data: { url: sound.media_item.attachment.url } %>
                 </div>
               </td>
             <% end %>
