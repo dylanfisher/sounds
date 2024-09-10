@@ -38,11 +38,47 @@ App.pageLoad.push(function() {
 
   var $soundTrs = $('.sound-tr')
 
-  var playPauseCallback = function(wavesurfer, $button) {
+  function secondsToHHMMSS(seconds) {
+    const hours = Math.floor(seconds / 3600)
+    const minutes = Math.floor((seconds % 3600) / 60)
+    const sec = Math.floor(seconds % 60)
+
+    if ( hours > 0 ) {
+      return `${hours}:${String(minutes).padStart(2, '0')}:${String(sec).padStart(2, '0')}`
+    } else {
+      return `${String(minutes).padStart(2, '0')}:${String(sec).padStart(2, '0')}`
+    }
+  }
+
+  var playPauseCallback = function(wavesurfer, $button, $wrapper) {
+    var $currentTime = $wrapper.find('.sound-current-time')
+    var updateTime = function() {
+      var time = secondsToHHMMSS( wavesurfer.getCurrentTime() )
+      $currentTime.html(time)
+    }
+
     if ( wavesurfer.isPlaying() ) {
       $button.html('Pause')
+
+      $wrapper.find('.sound-total-time').hide()
+      $wrapper.find('.sound-current-time').show()
+
+      if ( $wrapper.data('timer') ) window.clearInterval($wrapper.data('timer'))
+
+      var timer = window.setInterval(function() {
+        updateTime()
+      }, 1000)
+
+      updateTime()
+
+      $wrapper.data('timer', timer)
     } else {
       $button.html('Play')
+
+      $wrapper.find('.sound-total-time').show()
+      $wrapper.find('.sound-current-time').hide()
+
+      if ( $wrapper.data('timer') ) window.clearInterval($wrapper.data('timer'))
     }
   }
 
@@ -65,7 +101,7 @@ App.pageLoad.push(function() {
 
       wavesurfer.on('click', () => {
         wavesurfer.play()
-        playPauseCallback(wavesurfer, $button)
+        playPauseCallback(wavesurfer, $button, $wrapper)
       })
     })
   }
@@ -90,21 +126,25 @@ App.pageLoad.push(function() {
 
   App.$document.on('click', '.play-sound-button', function() {
     var $button = $(this)
-    var $soundWrapper  = $button.closest('.sound-wrapper')
-    var $sound  = $soundWrapper.find('.sound')
+    var $wrapper  = $button.closest('.sound-wrapper')
+    var $sound  = $wrapper.find('.sound')
     var wavesurfer = $sound.data('wavesurfer')
 
-    wavesurfer.playPause()
+    if ( App.breakpoint.isMobile() ) {
+      window.open($sound.attr('data-url'))
+    } else {
+      wavesurfer.playPause()
 
-    playPauseCallback(wavesurfer, $button)
+      playPauseCallback(wavesurfer, $button, $wrapper)
+    }
   })
 
   App.$document.on('click', '.tr-words-link', function(e) {
     e.preventDefault()
 
     var $link = $(this)
-    var $soundWrapper  = $link.closest('.sound-wrapper')
-    var id = $soundWrapper.attr('data-id')
+    var $wrapper  = $link.closest('.sound-wrapper')
+    var id = $wrapper.attr('data-id')
     var $tr = $soundTrs.filter(`[data-id="${id}"]`)
 
     $tr.toggleClass('d-none')

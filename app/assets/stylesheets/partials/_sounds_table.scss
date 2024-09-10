@@ -1,6 +1,9 @@
 .sounds-table {
   width: 100%;
-  table-layout: fixed;
+
+  @include breakpoint(md) {
+    table-layout: fixed;
+  }
 
   tr {
     text-align: left;

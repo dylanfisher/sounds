@@ -7,7 +7,7 @@
             <th>Date</th>
             <th>Title</th>
             <th>Alias</th>
-            <th>TR Words</th>
+            <th>TR&nbsp;Words</th>
             <th class="d-none d-md-block">Rating</th>
             <th>Duration</th>
             <th>
@@ -17,9 +17,9 @@
           </tr>
           <% @sounds.each do |sound| %>
             <%= content_tag :tr, class: 'sound-wrapper', data: { id: sound.id } do %>
-              <td><%= sound.date %></td>
+              <td class="text-nowrap"><%= sound.date %></td>
               <td><%= link_to sound.title, sound.media_item.attachment.url, download: true, target: '_blank' %></td>
-              <td><%= sound.artist %></td>
+              <td class="text-nowrap"><%= sound.artist %></td>
               <td>
                 <% if sound.description.present? %>
                   <%= link_to "TR-#{sound.description.split.length}", '#', class: 'tr-words-link' %>
@@ -30,7 +30,10 @@
                 <%= '★' * sound.stars + '☆' * (5 - sound.stars) %>
               </td>
               <td>
-                <%= sound.duration %>
+                <div class="sound-total-time">
+                  <%= sound.duration %>
+                </div>
+                <div class="sound-current-time"></div>
               </td>
               <td>
                 <div class="d-flex">
