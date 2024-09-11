@@ -3,6 +3,7 @@ require "mp3info"
 class MediaItem < Forest::ApplicationRecord
   include BaseMediaItem
 
+  # TODO: this doesn't run consistently
   def after_save_callbacks
     return unless self.attachment_content_type == 'audio/mpeg'
 

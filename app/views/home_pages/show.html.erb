@@ -4,6 +4,7 @@
       <div class="col">
         <table class="sounds-table">
           <tr>
+            <th></th>
             <th>Date</th>
             <th>Title</th>
             <th>Alias</th>
@@ -17,6 +18,9 @@
           </tr>
           <% @sounds.each do |sound| %>
             <%= content_tag :tr, class: 'sound-wrapper', data: { id: sound.id } do %>
+              <td>
+                <button class="play-sound-button">Play</button>
+              </td>
               <td class="text-nowrap"><%= sound.date %></td>
               <td><%= link_to sound.title, sound.media_item.attachment.url, download: true, target: '_blank' %></td>
               <td class="text-nowrap"><%= sound.artist %></td>
@@ -36,14 +40,11 @@
                 <div class="sound-current-time"></div>
               </td>
               <td>
-                <div class="d-flex">
-                  <button class="play-sound-button me-3">Play</button>
-                  <%= content_tag :div, nil, class: 'sound d-none d-md-block w-100', data: { url: sound.media_item.attachment.url } %>
-                </div>
+                <%= content_tag :div, nil, class: 'sound d-none d-md-block w-100', data: { url: sound.media_item.attachment.url } %>
               </td>
             <% end %>
             <%= content_tag :tr, class: 'd-none sound-tr', data: { id: sound.id } do %>
-              <td colspan="7" class="pb-3">
+              <td colspan="8" class="pb-3">
                 <strong>Trip Report</strong>
                 <br>
                 <%= md sound.description %>

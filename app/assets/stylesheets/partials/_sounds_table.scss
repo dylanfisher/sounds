@@ -1,20 +1,16 @@
 .sounds-table {
   width: 100%;
 
-  @include breakpoint(md) {
-    table-layout: fixed;
-  }
-
   tr {
     text-align: left;
   }
 
   th {
-    width: 8%;
+    width: 1%;
 
     &:last-child {
       @include breakpoint(md) {
-        width: 50%;
+        width: 100%;
       }
     }
   }
