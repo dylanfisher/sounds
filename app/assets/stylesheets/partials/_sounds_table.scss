@@ -19,6 +19,20 @@
   td + td {
     padding-left: 5px;
   }
+
+  // Title
+  td:nth-child(3) {
+    white-space: nowrap;
+    max-width: 20vw;
+    overflow: auto;
+  }
+
+  // Waveform visualization
+  td:last-child {
+    @include breakpoint(xs-sm) {
+      min-width: 50vw;
+    }
+  }
 }
 
 .play-sound-button {
