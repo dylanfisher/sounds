@@ -1,0 +1,2 @@
+class ArtistPolicy < BlockRecordPolicy
+end

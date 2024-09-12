@@ -1,0 +1,30 @@
+<%= simple_form_for([:admin, @artist]) do |f| %>
+  <%= f.error_notification %>
+  <% if f.error(:base).present? && f.error(:base) != '<div></div>' %>
+    <div class="mt-1 alert alert-danger w-100">
+      <%= f.error(:base) %>
+    </div>
+  <% end %>
+  <div class="row small-gutters">
+    <%= render 'admin/shared/edit/sidebar', f: f, record: @artist %>
+    <div class="col-md-9">
+      <div class="card">
+        <h1 class="h2 card-header"><%= record_name(@artist) %></h1>
+        <div class="card-body">
+          <div class="form-inputs">
+            <div class="row small-gutters">
+              <div class="col-md-6">
+                <%= f.input :name %>
+                <%= render 'admin/form_inputs/slug', f: f %>
+              </div>
+              <div class="col-md-6">
+                <%= f.input :description, markdown: true %>
+                <%= f.button :submit, class: 'btn-success d-md-none' %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

@@ -57,7 +57,7 @@ class Admin::SoundsController < Admin::ForestController
 
   def sound_params
     # Add blockable params to the permitted attributes if this record is blockable `**BlockSlot.blockable_params`
-    params.require(:sound).permit(:slug, :status, :title, :date, :media_item_id, :description, :waveform, :metadata, :artist, :stars)
+    params.require(:sound).permit(:slug, :status, :title, :date, :media_item_id, :description, :waveform, :metadata, :artist_id, :stars)
   end
 
   def set_sound

@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   end
 
   namespace :admin do
+    resources :artists
     resources :sounds do
       get 'reprocess_mp3', on: :member
     end

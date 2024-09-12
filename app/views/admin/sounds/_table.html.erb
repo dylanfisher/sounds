@@ -19,7 +19,7 @@
       </tr>
     </thead>
     <tbody>
-      <% records.each do |sound| %>
+      <% records.includes(:artist).each do |sound| %>
         <%= content_tag :tr do %>
           <% if Sound.statusable? %>
             <td><%= status_indicator sound %></td>
@@ -27,7 +27,7 @@
           <td><%= sound.id %></td>
           <td><%= sound.slug %></td>
           <td><%= sound.title %></td>
-          <td><%= sound.artist %></td>
+          <td><%= sound.artist.try(:name) %></td>
           <td><%= sound.date %></td>
           <td><%= sound.description.split(' ').length %> words</td>
           <td><%= sound.waveform.present? ? '✅' : '⚠️' %></td>

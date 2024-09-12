@@ -10,9 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_09_08_024209) do
+ActiveRecord::Schema[7.2].define(version: 2024_09_12_193026) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "artists", force: :cascade do |t|
+    t.string "name"
+    t.text "description"
+    t.string "slug"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_artists_on_slug", unique: true
+  end
 
   create_table "base_blocks", id: :serial, force: :cascade do |t|
     t.datetime "created_at", precision: nil, null: false
@@ -153,8 +162,9 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_08_024209) do
     t.integer "status", default: 1, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "artist"
     t.integer "stars"
+    t.bigint "artist_id"
+    t.index ["artist_id"], name: "index_sounds_on_artist_id"
     t.index ["media_item_id"], name: "index_sounds_on_media_item_id"
     t.index ["slug"], name: "index_sounds_on_slug", unique: true
     t.index ["status"], name: "index_sounds_on_status"
@@ -199,5 +209,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_09_08_024209) do
   add_foreign_key "block_slots", "block_kinds"
   add_foreign_key "block_slots", "block_layouts"
   add_foreign_key "media_items", "media_items", column: "poster_image_id"
+  add_foreign_key "sounds", "artists"
   add_foreign_key "sounds", "media_items"
 end

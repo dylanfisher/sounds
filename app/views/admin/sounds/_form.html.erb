@@ -15,7 +15,7 @@
             <div class="row small-gutters">
               <div class="col-md-6">
                 <%= f.input :title %>
-                <%= f.input :artist %>
+                <%= f.association :artist %>
                 <%= render 'admin/form_inputs/slug', f: f %>
                 <%= f.input :date, as: :datepicker %>
                 <%= f.input :description, markdown: true %>

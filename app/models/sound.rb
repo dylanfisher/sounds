@@ -2,6 +2,7 @@ class Sound < Forest::ApplicationRecord
   include Sluggable
   include Statusable
 
+  belongs_to :artist
   belongs_to :media_item
 
   validates :title, :artist, :date, :stars, presence: true
