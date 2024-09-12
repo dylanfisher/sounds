@@ -3,8 +3,11 @@ require "mp3info"
 class MediaItem < Forest::ApplicationRecord
   include BaseMediaItem
 
-  # TODO: this doesn't run consistently
   def after_save_callbacks
+    reprocess_sound_metadata
+  end
+
+  def reprocess_sound_metadata
     return unless self.attachment_content_type == 'audio/mpeg'
 
     mp3_info = Mp3Info.open(URI.open(self.attachment.url))

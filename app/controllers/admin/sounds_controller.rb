@@ -1,5 +1,5 @@
 class Admin::SoundsController < Admin::ForestController
-  before_action :set_sound, only: [:edit, :update, :destroy]
+  before_action :set_sound, only: [:edit, :update, :destroy, :reprocess_mp3]
 
   def index
     @pagy, @sounds = pagy apply_scopes(Sound).by_date
@@ -13,6 +13,17 @@ class Admin::SoundsController < Admin::ForestController
 
   def edit
     authorize @sound
+  end
+
+  def reprocess_mp3
+    authorize @sound, :edit?
+
+    if @sound.media_item.reprocess_sound_metadata
+      redirect_to edit_admin_sound_path(@sound), notice: 'Sound mp3 was successfully reprocessed.'
+    else
+      flash[:error] = 'Error reprocessing mp3'
+      render :edit
+    end
   end
 
   def create

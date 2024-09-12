@@ -12,6 +12,7 @@
         <th>Date</th>
         <th>TR Words</th>
         <th>Waveform</th>
+        <th>Metadata</th>
         <th><%= table_sorter title: 'Created&nbsp;at'.html_safe, path: :admin_sounds_path, scope: :by_created_at, default_order: :desc %></th>
         <th><%= table_sorter title: 'Updated&nbsp;at'.html_safe, path: :admin_sounds_path, scope: :by_updated_at, default_order: :desc %></th>
         <th colspan="3"></th>
@@ -29,7 +30,8 @@
           <td><%= sound.artist %></td>
           <td><%= sound.date %></td>
           <td><%= sound.description.split(' ').length %> words</td>
-          <td><%= sound.waveform.present? ? '✅' : '—' %></td>
+          <td><%= sound.waveform.present? ? '✅' : '⚠️' %></td>
+          <td><%= sound.media_item.sound_metadata.present? ? '✅' : '⚠️' %></td>
           <td><%= forest_date sound.created_at %></td>
           <td><%= forest_date sound.updated_at %></td>
           <td width="1">

@@ -16,7 +16,7 @@
               <div class="d-none d-md-block">Topography</div>
             </th>
           </tr>
-          <% @sounds.each do |sound| %>
+          <% @sounds.includes(:media_item).each do |sound| %>
             <%= content_tag :tr, class: 'sound-wrapper', data: { id: sound.id } do %>
               <td>
                 <button class="play-sound-button">Play</button>
