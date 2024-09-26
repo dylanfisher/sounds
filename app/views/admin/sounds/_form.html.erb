@@ -31,17 +31,19 @@
                 <%= f.button :submit, class: 'btn-success d-md-none' %>
               </div>
             </div>
-            <hr>
-            <div class="row small-gutters">
-              <div class="col">
-                <%= link_to 'Reprocess media item mp3 metadata', reprocess_mp3_admin_sound_path, target: '_blank', class: 'btn btn-secondary' %>
-                <pre>
-                  <code>
-<%= JSON.pretty_generate(f.object.try(:media_item).try(:sound_metadata)) %>
-                  </code>
-                </pre>
+            <% unless f.object.new_record? %>
+              <hr>
+              <div class="row small-gutters">
+                <div class="col">
+                  <%= link_to 'Reprocess media item mp3 metadata', reprocess_mp3_admin_sound_path, target: '_blank', class: 'btn btn-secondary' %>
+                  <pre>
+                    <code>
+  <%= JSON.pretty_generate(f.object.try(:media_item).try(:sound_metadata)) %>
+                    </code>
+                  </pre>
+                </div>
               </div>
-            </div>
+            <% end %>
           </div>
         </div>
       </div>
