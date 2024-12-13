@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-ruby "3.3.5"
+ruby "3.3.6"
 
 gem "rails", "~> 7.2"
 gem "forest", "~> 3.0", git: "https://github.com/dylanfisher/forest.git", branch: "master"

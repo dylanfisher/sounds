@@ -130,7 +130,7 @@ App.pageLoad.push(function() {
     var $sound  = $wrapper.find('.sound')
     var wavesurfer = $sound.data('wavesurfer')
 
-    if ( App.breakpoint.isMobile() ) {
+    if ( false && App.breakpoint.isMobile() && !wavesurfer.isPlaying() ) {
       window.open($sound.attr('data-url'))
     } else {
       wavesurfer.playPause()
