@@ -1,15 +1,14 @@
 source "https://rubygems.org"
 
-ruby "3.3.6"
+ruby "4.0.2"
 
-gem "rails", "~> 7.2"
+gem "rails", "~> 8.0"
 gem "forest", "~> 3.0", git: "https://github.com/dylanfisher/forest.git", branch: "master"
 gem "sprockets-rails"
 gem "pg", "~> 1.1"
 gem "puma", "~> 6"
 gem "bootsnap", require: false
-gem "sassc-rails"
-gem "sucker_punch", "~> 3.0"
+gem "dartsass-sprockets"
 gem "terser"
 gem "autoprefixer-rails", "~> 10"
 gem "dalli"

@@ -60,7 +60,7 @@ Rails.application.configure do
   end
 
   # Use a real queuing backend for Active Job (and separate queues per environment).
-  config.active_job.queue_adapter = :sucker_punch
+  config.active_job.queue_adapter = :async
   # config.active_job.queue_name_prefix = "sounds-dylan-fisher"
 
   config.action_mailer.perform_caching = false
