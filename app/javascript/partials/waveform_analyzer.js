@@ -37,6 +37,8 @@ App.pageLoad.push(function() {
   if ( !$sounds.length ) return
 
   var $soundTrs = $('.sound-tr')
+  var waveformRequestInFlight = false
+  var queuedWaveformPage = null
 
   function secondsToHHMMSS(seconds) {
     const hours = Math.floor(seconds / 3600)
@@ -82,10 +84,13 @@ App.pageLoad.push(function() {
     }
   }
 
-  var initSounds = function() {
-    $sounds.each(function() {
+  var initSounds = function($targetSounds) {
+    $targetSounds.each(function() {
       var $sound = $(this)
       var $wrapper = $sound.closest('.sound-wrapper')
+
+      if ( $sound.data('wavesurfer') || !$wrapper.data('waveform') ) return
+
       var $button = $wrapper.find('.play-sound-button')
       var wavesurfer = WaveSurfer.create({
         container: $sound[0],
@@ -99,6 +104,8 @@ App.pageLoad.push(function() {
 
       wavesurfer.load($sound.attr('data-url'), JSON.parse($wrapper.data('waveform')))
 
+      $button.prop('disabled', false)
+
       wavesurfer.on('click', () => {
         wavesurfer.play()
         playPauseCallback(wavesurfer, $button, $wrapper)
@@ -106,29 +113,65 @@ App.pageLoad.push(function() {
     })
   }
 
-  $.ajax({
-    url: '/sounds/waveforms',
-    type: 'GET',
-    dataType: 'json',
-    success: function(data) {
-      data['items'].forEach(function(item) {
-        var $wrapper = $(`.sound-wrapper[data-id="${item.id}"]`)
+  $('.play-sound-button').prop('disabled', true)
 
-        $wrapper.data('waveform', item.waveform)
-      })
+  var queueWaveformPageLoad = function(page) {
+    if ( !page || waveformRequestInFlight ) return
 
-      initSounds()
-    },
-    error: function(xhr, status, error) {
-      console.error(error)
-    }
-  })
+    waveformRequestInFlight = true
+
+    $.ajax({
+      url: '/sounds/waveforms',
+      type: 'GET',
+      dataType: 'json',
+      data: { page: page },
+      success: function(data) {
+        var $batchSounds = $()
+
+        data['items'].forEach(function(item) {
+          var $wrapper = $(`.sound-wrapper[data-id="${item.id}"]`)
+          var $sound = $wrapper.find('.sound')
+
+          if ( !$wrapper.length ) return
+
+          $wrapper.data('waveform', item.waveform)
+          $batchSounds = $batchSounds.add($sound)
+        })
+
+        initSounds($batchSounds)
+
+        if ( data.next_page ) {
+          queuedWaveformPage = data.next_page
+        }
+      },
+      error: function(xhr, status, error) {
+        console.error(error)
+      },
+      complete: function() {
+        waveformRequestInFlight = false
+
+        if ( queuedWaveformPage ) {
+          var nextPage = queuedWaveformPage
+
+          queuedWaveformPage = null
+
+          window.setTimeout(function() {
+            queueWaveformPageLoad(nextPage)
+          }, 0)
+        }
+      }
+    })
+  }
+
+  queueWaveformPageLoad(1)
 
   App.$document.on('click', '.play-sound-button', function() {
     var $button = $(this)
     var $wrapper  = $button.closest('.sound-wrapper')
     var $sound  = $wrapper.find('.sound')
     var wavesurfer = $sound.data('wavesurfer')
+
+    if ( !wavesurfer ) return
 
     if ( false && App.breakpoint.isMobile() && !wavesurfer.isPlaying() ) {
       window.open($sound.attr('data-url'))
