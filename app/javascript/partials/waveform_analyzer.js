@@ -52,6 +52,10 @@ App.pageLoad.push(function() {
     }
   }
 
+  var updateCurrentSoundState = function($wrapper, isCurrent) {
+    $wrapper.toggleClass('sound-wrapper--current', isCurrent)
+  }
+
   var playPauseCallback = function(wavesurfer, $button, $wrapper) {
     var $currentTime = $wrapper.find('.sound-current-time')
     var updateTime = function() {
@@ -61,6 +65,7 @@ App.pageLoad.push(function() {
 
     if ( wavesurfer.isPlaying() ) {
       $button.html('Pause')
+      updateCurrentSoundState($wrapper, true)
 
       $wrapper.find('.sound-total-time').hide()
       $wrapper.find('.sound-current-time').show()
@@ -76,12 +81,28 @@ App.pageLoad.push(function() {
       $wrapper.data('timer', timer)
     } else {
       $button.html('Play')
+      updateCurrentSoundState($wrapper, false)
 
       $wrapper.find('.sound-total-time').show()
       $wrapper.find('.sound-current-time').hide()
 
       if ( $wrapper.data('timer') ) window.clearInterval($wrapper.data('timer'))
     }
+  }
+
+  var pauseOtherSounds = function(activeWavesurfer) {
+    $sounds.each(function() {
+      var $sound = $(this)
+      var wavesurfer = $sound.data('wavesurfer')
+
+      if ( !wavesurfer || wavesurfer === activeWavesurfer || !wavesurfer.isPlaying() ) return
+
+      var $wrapper = $sound.closest('.sound-wrapper')
+      var $button = $wrapper.find('.play-sound-button')
+
+      wavesurfer.pause()
+      playPauseCallback(wavesurfer, $button, $wrapper)
+    })
   }
 
   var initSounds = function($targetSounds) {
@@ -107,7 +128,12 @@ App.pageLoad.push(function() {
       $button.prop('disabled', false)
 
       wavesurfer.on('click', () => {
+        pauseOtherSounds(wavesurfer)
         wavesurfer.play()
+        playPauseCallback(wavesurfer, $button, $wrapper)
+      })
+
+      wavesurfer.on('finish', () => {
         playPauseCallback(wavesurfer, $button, $wrapper)
       })
     })
@@ -176,6 +202,8 @@ App.pageLoad.push(function() {
     if ( false && App.breakpoint.isMobile() && !wavesurfer.isPlaying() ) {
       window.open($sound.attr('data-url'))
     } else {
+      if ( !wavesurfer.isPlaying() ) pauseOtherSounds(wavesurfer)
+
       wavesurfer.playPause()
 
       playPauseCallback(wavesurfer, $button, $wrapper)
