@@ -3,6 +3,7 @@ Rails.application.routes.draw do
   namespace :admin do
     resources :sound_ratings
   end
+  get 'up' => 'rails/health#show', as: :rails_health_check
   root to: 'home_pages#show'
 
   resources :sounds, only: [] do
