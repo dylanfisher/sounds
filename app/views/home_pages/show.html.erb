@@ -8,7 +8,7 @@
             <th>Date</th>
             <th>Title</th>
             <th>Alias</th>
-            <th class="d-none d-md-block sounds-table__rating-heading" style="white-space: nowrap;">
+            <th class="sounds-table__rating-heading" style="white-space: nowrap;">
               Rating
               <span
                 class="sounds-table__hint"
@@ -31,7 +31,7 @@
               <td class="text-nowrap">
                 <%= content_tag :span, sound.artist.name %>
               </td>
-              <td class="d-none d-md-block">
+              <td>
                 <div
                   class="sound-rating"
                   data-sound-id="<%= sound.id %>"
