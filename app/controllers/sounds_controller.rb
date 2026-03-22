@@ -23,6 +23,7 @@ class SoundsController < ForestController
     rating = params[:rating].to_i
     if current_user.try(:admin?)
       @sound.update_columns(stars: rating, updated_at: Time.current)
+      Setting.expire_application_cache_key!
 
       render json: {
         sound_id: @sound.id,
