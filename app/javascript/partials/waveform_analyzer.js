@@ -1,35 +1,3 @@
-import WaveSurfer from 'wavesurfer.js'
-
-// Backend analyzer
-App.pageLoad.push(function() {
-  var $waveform = $('#waveform')
-
-  if ( !$waveform.length ) return
-
-  var $parent = $('#waveform-parent')
-  var $loadingMessage = $('#waveform-loading-message')
-  var $form = $parent.find('form')
-  var $metadata = $form.find('#sound_waveform')
-  var wavesurfer = WaveSurfer.create({
-    container: $waveform[0],
-    waveColor: '#000000',
-    progressColor: '#55198B',
-    height: 24,
-    cursorWidth: 0,
-  })
-
-  wavesurfer.load($waveform.attr('data-url'))
-
-  wavesurfer.on('ready', function () {
-    $loadingMessage.remove()
-
-    var peaks = wavesurfer.exportPeaks({ maxLength: 2000 })
-
-    $form.removeClass('d-none')
-    $metadata.val(JSON.stringify(peaks))
-  })
-})
-
 // Frontend waveform display
 App.pageLoad.push(function() {
   var $sounds = $('.sound')
@@ -39,6 +7,14 @@ App.pageLoad.push(function() {
   var $soundTrs = $('.sound-tr')
   var waveformRequestInFlight = false
   var queuedWaveformPage = null
+  var audio = new window.Audio()
+  var activeSoundId = null
+  var activeAudioUrl = null
+  var activeWrapperId = null
+  var pendingSeekRatio = null
+  var audioBusy = false
+
+  audio.preload = 'none'
 
   function secondsToHHMMSS(seconds) {
     const hours = Math.floor(seconds / 3600)
@@ -56,122 +32,213 @@ App.pageLoad.push(function() {
     $wrapper.toggleClass('sound-wrapper--current', isCurrent)
   }
 
-  var playPauseCallback = function(wavesurfer, $button, $wrapper) {
-    var $currentTime = $wrapper.find('.sound-current-time')
-    var updateTime = function() {
-      var time = secondsToHHMMSS( wavesurfer.getCurrentTime() )
-      $currentTime.html(time)
+  var getSoundById = function(soundId) {
+    return $(`.sound-wrapper[data-id="${soundId}"]`).find('.sound')
+  }
+
+  var getState = function($sound) {
+    return $sound.data('waveformState')
+  }
+
+  var getProgressRatio = function(soundId) {
+    if ( !soundId || soundId !== activeSoundId || !audio.duration || !Number.isFinite(audio.duration) || audio.ended ) {
+      return 0
     }
 
-    if ( wavesurfer.isPlaying() ) {
-      $button.html('Pause')
-      updateCurrentSoundState($wrapper, true)
+    return Math.max(0, Math.min(1, audio.currentTime / audio.duration))
+  }
 
-      $wrapper.find('.sound-total-time').hide()
-      $wrapper.find('.sound-current-time').show()
+  var ensureCanvasSize = function(state) {
+    var width = Math.max(1, Math.floor(state.$sound.innerWidth()))
+    var pixelRatio = window.devicePixelRatio || 1
+    var height = state.height
 
-      if ( $wrapper.data('timer') ) window.clearInterval($wrapper.data('timer'))
+    if ( state.width === width && state.pixelRatio === pixelRatio ) return
 
-      var timer = window.setInterval(function() {
-        updateTime()
-      }, 1000)
+    state.width = width
+    state.pixelRatio = pixelRatio
+    state.canvas.width = width * pixelRatio
+    state.canvas.height = height * pixelRatio
+    state.canvas.style.width = width + 'px'
+    state.canvas.style.height = height + 'px'
+    state.ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0)
+  }
 
-      updateTime()
+  var drawWaveform = function(state, progressRatio) {
+    ensureCanvasSize(state)
 
-      $wrapper.data('timer', timer)
-    } else {
-      $button.html('Play')
-      updateCurrentSoundState($wrapper, false)
+    var ctx = state.ctx
+    var width = state.width
+    var height = state.height
+    var peaks = state.peaks
+    var middle = height / 2
+    var progressWidth = Math.round(width * progressRatio)
 
-      $wrapper.find('.sound-total-time').show()
-      $wrapper.find('.sound-current-time').hide()
+    ctx.clearRect(0, 0, width, height)
 
-      if ( $wrapper.data('timer') ) window.clearInterval($wrapper.data('timer'))
+    if ( !peaks.length ) return
+
+    for ( let x = 0; x < width; x += 1 ) {
+      var peakIndex = Math.min(peaks.length - 1, Math.floor(x * peaks.length / width))
+      var peak = Math.abs(peaks[peakIndex] || 0)
+      var amplitude = Math.max(1, peak * middle)
+
+      ctx.strokeStyle = x <= progressWidth ? '#55198B' : '#000000'
+      ctx.beginPath()
+      ctx.moveTo(x + 0.5, middle - amplitude)
+      ctx.lineTo(x + 0.5, middle + amplitude)
+      ctx.stroke()
     }
   }
 
-  var pauseOtherSounds = function(activeWavesurfer) {
-    $sounds.each(function() {
-      var $sound = $(this)
-      var wavesurfer = $sound.data('wavesurfer')
+  var renderSoundWaveform = function($sound) {
+    var state = getState($sound)
 
-      if ( !wavesurfer || wavesurfer === activeWavesurfer || !wavesurfer.isPlaying() ) return
+    if ( !state ) return
 
-      var $wrapper = $sound.closest('.sound-wrapper')
-      var $button = $wrapper.find('.play-sound-button')
-
-      wavesurfer.pause()
-      playPauseCallback(wavesurfer, $button, $wrapper)
-    })
+    drawWaveform(state, getProgressRatio(state.soundId))
   }
 
-  var ensureAudioLoaded = function($sound, wavesurfer, onReady) {
-    if ( $sound.data('audioLoaded') ) {
-      onReady()
-      return
-    }
+  var setButtonLabel = function($button, label) {
+    if ( $button.text() === label ) return
 
-    if ( $sound.data('audioLoading') ) {
-      wavesurfer.once('ready', onReady)
-      return
-    }
-
-    var peaks = JSON.parse($sound.closest('.sound-wrapper').data('waveform'))
-    var duration = parseFloat($sound.attr('data-duration') || 0)
-
-    $sound.data('audioLoading', true)
-    wavesurfer.once('ready', function() {
-      $sound.data('audioLoading', false)
-      $sound.data('audioLoaded', true)
-      onReady()
-    })
-    wavesurfer.load($sound.attr('data-url'), peaks, duration)
+    $button.html(label)
   }
 
-  var toggleSoundPlayback = function($sound) {
-    var wavesurfer = $sound.data('wavesurfer')
+  var refreshSoundUi = function($sound) {
+    if ( !$sound.length ) return
 
-    if ( !wavesurfer ) return
+    var state = getState($sound)
+
+    if ( !state ) return
 
     var $wrapper = $sound.closest('.sound-wrapper')
     var $button = $wrapper.find('.play-sound-button')
+    var $currentTime = $wrapper.find('.sound-current-time')
+    var isActive = state.soundId === activeSoundId
+    var isPlaying = isActive && !audio.paused && !audio.ended
+    var isLoading = isActive && audioBusy
 
-    ensureAudioLoaded($sound, wavesurfer, function() {
-      if ( !wavesurfer.isPlaying() ) pauseOtherSounds(wavesurfer)
+    if ( isLoading ) {
+      setButtonLabel($button, isPlaying ? 'Pause' : 'Play')
+      updateCurrentSoundState($wrapper, true)
+      $wrapper.find('.sound-total-time').show()
+      $wrapper.find('.sound-current-time').hide()
+      renderSoundWaveform($sound)
+      return
+    }
 
-      wavesurfer.playPause()
-      playPauseCallback(wavesurfer, $button, $wrapper)
-    })
+    if ( isPlaying ) {
+      setButtonLabel($button, 'Pause')
+      updateCurrentSoundState($wrapper, true)
+      $wrapper.find('.sound-total-time').hide()
+      $wrapper.find('.sound-current-time').show()
+      $currentTime.html(secondsToHHMMSS(audio.currentTime))
+    } else {
+      setButtonLabel($button, 'Play')
+      updateCurrentSoundState($wrapper, false)
+      $wrapper.find('.sound-total-time').show()
+      $wrapper.find('.sound-current-time').hide()
+    }
+
+    renderSoundWaveform($sound)
+  }
+
+  var safeAudioPlay = function() {
+    var playPromise = audio.play()
+
+    if ( playPromise && typeof playPromise.catch === 'function' ) {
+      playPromise.catch(function(error) {
+        if ( error && error.name === 'AbortError' ) return
+
+        throw error
+      })
+    }
+  }
+
+  var refreshActiveAndPrevious = function(previousSoundId) {
+    if ( previousSoundId ) refreshSoundUi(getSoundById(previousSoundId))
+    if ( activeSoundId ) refreshSoundUi(getSoundById(activeSoundId))
+  }
+
+  var playSound = function($sound, options) {
+    var state = getState($sound)
+
+    if ( !state ) return
+
+    var previousSoundId = activeSoundId
+    var seekRatio = options && options.seekRatio !== undefined ? Math.max(0, Math.min(1, options.seekRatio)) : null
+
+    activeSoundId = state.soundId
+    activeWrapperId = state.soundId
+    pendingSeekRatio = seekRatio
+    audioBusy = true
+
+    if ( activeAudioUrl !== state.url ) {
+      audio.pause()
+      audio.src = state.url
+      activeAudioUrl = state.url
+      audio.load()
+    } else if ( pendingSeekRatio !== null && audio.duration && Number.isFinite(audio.duration) ) {
+      audio.currentTime = audio.duration * pendingSeekRatio
+      pendingSeekRatio = null
+    }
+
+    refreshActiveAndPrevious(previousSoundId)
+    safeAudioPlay()
+  }
+
+  var toggleSoundPlayback = function($sound) {
+    var state = getState($sound)
+
+    if ( !state ) return
+
+    if ( activeSoundId === state.soundId && activeAudioUrl === state.url && !audioBusy ) {
+      if ( audio.paused || audio.ended ) {
+        safeAudioPlay()
+      } else {
+        audio.pause()
+      }
+
+      refreshSoundUi($sound)
+      return
+    }
+
+    playSound($sound)
+  }
+
+  var playSoundAtPosition = function($sound, position) {
+    playSound($sound, { seekRatio: position })
   }
 
   var initSounds = function($targetSounds) {
     $targetSounds.each(function() {
       var $sound = $(this)
       var $wrapper = $sound.closest('.sound-wrapper')
+      var waveform = $wrapper.data('waveform')
 
-      if ( $sound.data('wavesurfer') || !$wrapper.data('waveform') ) return
+      if ( getState($sound) || !waveform ) return
 
       var $button = $wrapper.find('.play-sound-button')
-      var wavesurfer = WaveSurfer.create({
-        container: $sound[0],
-        waveColor: '#000000',
-        progressColor: '#55198B',
+      var canvas = document.createElement('canvas')
+      var parsedWaveform = typeof waveform === 'string' ? JSON.parse(waveform) : waveform
+      var peaks = Array.isArray(parsedWaveform[0]) ? parsedWaveform[0] : parsedWaveform
+      var state = {
+        $sound: $sound,
+        canvas: canvas,
+        ctx: canvas.getContext('2d'),
+        peaks: peaks || [],
+        duration: parseFloat($sound.attr('data-duration') || 0),
+        soundId: String($wrapper.data('id')),
+        url: $sound.attr('data-url'),
         height: 24,
-        cursorWidth: 0,
-      })
+      }
 
-      $sound.data('wavesurfer', wavesurfer)
-      wavesurfer.load('', JSON.parse($wrapper.data('waveform')), parseFloat($sound.attr('data-duration') || 0))
+      $sound.empty().append(canvas)
+      $sound.data('waveformState', state)
+      renderSoundWaveform($sound)
 
       $button.prop('disabled', false)
-
-      wavesurfer.on('click', () => {
-        toggleSoundPlayback($sound)
-      })
-
-      wavesurfer.on('finish', () => {
-        playPauseCallback(wavesurfer, $button, $wrapper)
-      })
     })
   }
 
@@ -227,19 +294,80 @@ App.pageLoad.push(function() {
 
   queueWaveformPageLoad(1)
 
-  App.$document.on('click', '.play-sound-button', function() {
-    var $button = $(this)
-    var $wrapper  = $button.closest('.sound-wrapper')
-    var $sound  = $wrapper.find('.sound')
+  audio.addEventListener('loadstart', function() {
+    audioBusy = true
+    if ( activeSoundId ) refreshSoundUi(getSoundById(activeSoundId))
+  })
 
-    if ( !$sound.data('wavesurfer') ) return
+  audio.addEventListener('loadedmetadata', function() {
+    if ( pendingSeekRatio !== null && audio.duration && Number.isFinite(audio.duration) ) {
+      audio.currentTime = audio.duration * pendingSeekRatio
+      pendingSeekRatio = null
+    }
+  })
 
-    if ( false && App.breakpoint.isMobile() && !$sound.data('audioLoaded') ) {
-      window.open($sound.attr('data-url'))
-      return
+  audio.addEventListener('canplay', function() {
+    audioBusy = false
+    if ( activeSoundId ) refreshSoundUi(getSoundById(activeSoundId))
+  })
+
+  audio.addEventListener('playing', function() {
+    audioBusy = false
+    if ( activeSoundId ) refreshSoundUi(getSoundById(activeSoundId))
+  })
+
+  audio.addEventListener('waiting', function() {
+    audioBusy = true
+    if ( activeSoundId ) refreshSoundUi(getSoundById(activeSoundId))
+  })
+
+  audio.addEventListener('timeupdate', function() {
+    if ( activeSoundId ) refreshSoundUi(getSoundById(activeSoundId))
+  })
+
+  audio.addEventListener('pause', function() {
+    if ( activeSoundId ) refreshSoundUi(getSoundById(activeSoundId))
+  })
+
+  audio.addEventListener('ended', function() {
+    var previousSoundId = activeSoundId
+
+    if ( audio.duration && Number.isFinite(audio.duration) ) {
+      audio.currentTime = 0
     }
 
+    activeSoundId = null
+    activeWrapperId = null
+    pendingSeekRatio = null
+    audioBusy = false
+    if ( previousSoundId ) refreshSoundUi(getSoundById(previousSoundId))
+  })
+
+  $(window).on('resize', function() {
+    $sounds.each(function() {
+      renderSoundWaveform($(this))
+    })
+  })
+
+  App.$document.on('click', '.play-sound-button', function() {
+    var $wrapper  = $(this).closest('.sound-wrapper')
+    var $sound  = $wrapper.find('.sound')
+
+    if ( !getState($sound) ) return
+
     toggleSoundPlayback($sound)
+  })
+
+  App.$document.on('click', '.sound', function(event) {
+    var $sound = $(this)
+    var state = getState($sound)
+
+    if ( !state || !state.width ) return
+
+    var rect = state.canvas.getBoundingClientRect()
+    var ratio = (event.clientX - rect.left) / rect.width
+
+    playSoundAtPosition($sound, ratio)
   })
 
   App.$document.on('click', '.tr-words-link', function(e) {

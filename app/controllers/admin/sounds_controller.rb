@@ -1,5 +1,5 @@
 class Admin::SoundsController < Admin::ForestController
-  before_action :set_sound, only: [:edit, :update, :destroy, :reprocess_mp3]
+  before_action :set_sound, only: [:edit, :update, :destroy, :reprocess_mp3, :reanalyze_waveform]
 
   def index
     @pagy, @sounds = pagy apply_scopes(Sound).by_date
@@ -25,6 +25,24 @@ class Admin::SoundsController < Admin::ForestController
       flash[:error] = 'Error reprocessing mp3'
       render :edit
     end
+  end
+
+  def reanalyze_waveform
+    authorize @sound, :edit?
+
+    media_item = @sound.media_item
+
+    if media_item.blank? || media_item.attachment.blank? || media_item.attachment_content_type != 'audio/mpeg'
+      redirect_to edit_admin_sound_path(@sound), alert: 'Sound needs an attached MP3 before waveform data can be analyzed.'
+      return
+    end
+
+    waveform_json = Sounds::GenerateWaveform.new(source_url: media_item.attachment.url).call.to_json
+    @sound.update_columns(waveform: waveform_json, updated_at: Time.current)
+
+    redirect_to edit_admin_sound_path(@sound), notice: 'Waveform data was successfully reanalyzed.'
+  rescue StandardError => e
+    redirect_to edit_admin_sound_path(@sound), alert: "Error reanalyzing waveform data: #{e.message}"
   end
 
   def create

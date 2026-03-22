@@ -43,6 +43,16 @@
   min-width: 60px;
 }
 
+.sound {
+  display: block;
+  height: 24px;
+
+  canvas {
+    display: block;
+    height: 24px;
+  }
+}
+
 .sounds-table__hint {
   border-radius: 50%;
   cursor: help;
@@ -76,6 +86,12 @@
 .sound-rating.is-rated {
   color: #0000ff;
   cursor: default;
+}
+
+.sounds-table.show-average-ratings .sound-rating,
+.sounds-table.show-average-ratings .sound-rating.is-hovering,
+.sounds-table.show-average-ratings .sound-rating.is-rated {
+  color: #808080;
 }
 
 .sound-rating__value {

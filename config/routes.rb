@@ -5,7 +5,7 @@ Rails.application.routes.draw do
   end
   root to: 'home_pages#show'
 
-  resources :sounds, only: :show do
+  resources :sounds, only: [] do
     member do
       post 'rate'
     end
@@ -20,6 +20,7 @@ Rails.application.routes.draw do
     resources :sounds do
       post 'bulk_upload', on: :collection
       get 'reprocess_mp3', on: :member
+      post 'reanalyze_waveform', on: :member
     end
   end
 end

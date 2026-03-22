@@ -55,6 +55,7 @@ App.pageLoad.push(function() {
     var submittedRating = storedRatings[soundId]
 
     $rating.data('display-rating', $rating.data('current-rating'))
+    setDisplayedRating($rating, $rating.data('current-rating'))
     setTitle($rating)
 
     if ( submittedRating ) {
@@ -121,6 +122,34 @@ App.pageLoad.push(function() {
       },
       complete: function() {
         $rating.removeClass('is-submitting')
+      }
+    })
+  })
+
+  App.$document.on('mouseenter', '.sounds-table__rating-heading', function() {
+    var $table = $(this).closest('.sounds-table')
+
+    $table.addClass('show-average-ratings')
+    $table.find('.sound-rating').each(function() {
+      var $rating = $(this)
+
+      setDisplayedRating($rating, $rating.data('display-rating'))
+    })
+  })
+
+  App.$document.on('mouseleave', '.sounds-table__rating-heading', function() {
+    var $table = $(this).closest('.sounds-table')
+
+    $table.removeClass('show-average-ratings')
+    $table.find('.sound-rating').each(function() {
+      var $rating = $(this)
+
+      if ( $rating.hasClass('is-hovering') ) {
+        setDisplayedRating($rating, $rating.data('hover-rating') || $rating.data('display-rating'))
+      } else if ( $rating.hasClass('is-rated') ) {
+        setDisplayedRating($rating, $rating.data('submitted-rating'))
+      } else {
+        setDisplayedRating($rating, $rating.data('display-rating'))
       }
     })
   })

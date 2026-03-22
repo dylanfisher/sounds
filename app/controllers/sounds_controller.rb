@@ -1,10 +1,6 @@
 class SoundsController < ForestController
-  before_action :set_sound, only: [:show, :rate]
+  before_action :set_sound, only: [:rate]
   before_action :set_rating_browser_identifier, only: [:rate]
-
-  def show
-    authorize @sound
-  end
 
   def waveforms
     page = params.fetch(:page, 1).to_i
@@ -25,6 +21,18 @@ class SoundsController < ForestController
     authorize @sound
 
     rating = params[:rating].to_i
+    if current_user.try(:admin?)
+      @sound.update_columns(stars: rating, updated_at: Time.current)
+
+      render json: {
+        sound_id: @sound.id,
+        submitted_rating: rating,
+        average_rating: rating,
+        ratings_count: @sound.sound_ratings.count
+      }
+      return
+    end
+
     existing_rating = @sound.sound_ratings.find_by(browser_identifier: @rating_browser_identifier)
 
     if existing_rating.blank? && rating_limit_reached?

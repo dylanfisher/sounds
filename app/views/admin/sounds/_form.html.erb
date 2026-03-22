@@ -86,6 +86,7 @@
               <div class="row small-gutters">
                 <div class="col">
                   <%= link_to 'Reprocess media item mp3 metadata', reprocess_mp3_admin_sound_path, target: '_blank', class: 'btn btn-secondary' %>
+                  <%= link_to 'Reanalyze waveform data', reanalyze_waveform_admin_sound_path(@sound), method: :post, class: 'btn btn-secondary ml-2', data: { confirm: 'Reanalyze this sound waveform on the server?' } %>
                   <pre>
                     <code>
   <%= JSON.pretty_generate(f.object.try(:media_item).try(:sound_metadata)) %>

@@ -2,10 +2,9 @@
 
 Is it music?
 
-## TODO
+## Developing
 
-- Add button to sounds to retrigger after_save_callbacks on media item
-- Document dokku deployment
+`yarn build --watch`
 
 ## Dokku
 
