@@ -26,7 +26,7 @@
                 <%= f.input :stars %>
                 <%= f.input :waveform %>
                 <% if f.object.waveform.blank? && !@sound.new_record? %>
-                  <%= link_to 'Create waveform!', sound_path(@sound.to_friendly_param), target: '_blank', class: 'btn btn-primary' %>
+                  <p class="text-muted small">Waveform data is generated automatically on the server after save.</p>
                 <% end %>
                 <%= f.button :submit, class: 'btn-success d-md-none' %>
               </div>
