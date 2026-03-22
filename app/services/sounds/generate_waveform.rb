@@ -6,6 +6,7 @@ module Sounds
   class GenerateWaveform
     MAX_LENGTH = 1000
     PRECISION = 10_000.0
+    DEFAULT_FFMPEG_BIN = ENV.fetch('FFMPEG_BIN', 'ffmpeg')
 
     def initialize(source_url:, max_length: MAX_LENGTH)
       @source_url = source_url
@@ -30,7 +31,7 @@ module Sounds
 
     def decode_samples(file_path)
       stdout, stderr, status = Open3.capture3(
-        'ffmpeg',
+        ffmpeg_bin,
         '-v', 'error',
         '-i', file_path,
         '-map', 'a:0',
@@ -44,6 +45,8 @@ module Sounds
       raise "ffmpeg failed to decode waveform data: #{stderr.presence || 'unknown error'}" unless status.success?
 
       stdout.unpack('e*')
+    rescue Errno::ENOENT
+      raise "ffmpeg is not installed or not available in PATH. Set FFMPEG_BIN or install ffmpeg in the deploy image."
     end
 
     def build_peaks(samples)
@@ -72,6 +75,10 @@ module Sounds
       File.extname(URI.parse(source_url).path).presence || '.audio'
     rescue URI::InvalidURIError
       '.audio'
+    end
+
+    def ffmpeg_bin
+      DEFAULT_FFMPEG_BIN
     end
   end
 end
