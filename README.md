@@ -8,6 +8,10 @@ Is it music?
 
 ## Dokku
 
+### Deploy
+
+`git push dokku main`
+
 ### Download a database backup to local
 
 ```
