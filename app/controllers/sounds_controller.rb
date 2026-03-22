@@ -1,5 +1,6 @@
 class SoundsController < ForestController
-  before_action :set_sound, only: [:show]
+  before_action :set_sound, only: [:show, :rate]
+  before_action :set_rating_browser_identifier, only: [:rate]
 
   def show
     authorize @sound
@@ -20,9 +21,62 @@ class SoundsController < ForestController
     authorize Sound
   end
 
+  def rate
+    authorize @sound
+
+    rating = params[:rating].to_i
+    existing_rating = @sound.sound_ratings.find_by(browser_identifier: @rating_browser_identifier)
+
+    if existing_rating.blank? && rating_limit_reached?
+      render json: { error: 'Too many rating submissions for this sound from your IP address. Please try again later.' }, status: :too_many_requests
+      return
+    end
+
+    result = @sound.submit_rating!(
+      rating: rating,
+      browser_identifier: @rating_browser_identifier,
+      ip_address: request.remote_ip,
+      user_agent: request.user_agent,
+      referrer: request.referer
+    )
+
+    render json: {
+      sound_id: @sound.id,
+      submitted_rating: result[:submitted_rating],
+      average_rating: result[:average_rating],
+      ratings_count: result[:ratings_count]
+    }
+  rescue ActiveRecord::RecordInvalid => e
+    render json: { error: e.record.errors.full_messages.to_sentence }, status: :unprocessable_entity
+  rescue ArgumentError => e
+    render json: { error: e.message }, status: :unprocessable_entity
+  end
+
   private
 
   def set_sound
     @sound = Sound.find_by!(slug: params[:id])
+  end
+
+  def set_rating_browser_identifier
+    browser_identifier = cookies.permanent.signed[:rating_browser_identifier]
+
+    if browser_identifier.blank?
+      browser_identifier = SecureRandom.uuid
+      cookies.permanent.signed[:rating_browser_identifier] = {
+        value: browser_identifier,
+        httponly: true,
+        same_site: :lax
+      }
+    end
+
+    @rating_browser_identifier = browser_identifier
+  end
+
+  def rating_limit_reached?
+    @sound.sound_ratings
+      .where(ip_address: request.remote_ip)
+      .where('created_at >= ?', 24.hours.ago)
+      .count >= 3
   end
 end

@@ -8,14 +8,20 @@
             <th>Date</th>
             <th>Title</th>
             <th>Alias</th>
-            <th class="d-none d-md-block">Rating</th>
+            <th class="d-none d-md-block" style="white-space: nowrap;">
+              Rating
+              <span
+                class="sounds-table__hint"
+                title="You can help rate tracks! Average ratings are shown in gray. If you rate a track, your rating is shown in blue."
+              >?</span>
+            </th>
             <th>Duration</th>
             <th>
               <div class="d-md-none">Audio</div>
               <div class="d-none d-md-block">Topography</div>
             </th>
           </tr>
-          <% @sounds.includes(:artist, :media_item).each do |sound| %>
+          <% @sounds.includes(:artist, :media_item, :sound_ratings).each do |sound| %>
             <%= content_tag :tr, class: 'sound-wrapper', data: { id: sound.id } do %>
               <td>
                 <button class="play-sound-button">Play</button>
@@ -26,7 +32,18 @@
                 <%= content_tag :span, sound.artist.name %>
               </td>
               <td class="d-none d-md-block">
-                <%= '★' * sound.stars + '☆' * (5 - sound.stars) %>
+                <div
+                  class="sound-rating"
+                  data-sound-id="<%= sound.id %>"
+                  data-current-rating="<%= sound.stars %>"
+                  data-ratings-count="<%= sound.sound_ratings.size %>"
+                  data-rate-url="<%= rate_sound_path(sound.to_friendly_param) %>"
+                  title="Average rating: <%= sound.stars || 0 %>/5. Total ratings: <%= sound.sound_ratings.size %>."
+                >
+                  <div class="sound-rating__value">
+                    <%= '★' * sound.stars + '☆' * (5 - sound.stars) %>
+                  </div>
+                </div>
               </td>
               <td>
                 <div class="sound-total-time">

@@ -12,6 +12,7 @@ class Admin::SoundsController < Admin::ForestController
   end
 
   def edit
+    load_sound_ratings
     authorize @sound
   end
 
@@ -78,6 +79,7 @@ class Admin::SoundsController < Admin::ForestController
     if @sound.update(sound_params)
       redirect_to edit_admin_sound_path(@sound), notice: 'Sound was successfully updated.'
     else
+      load_sound_ratings
       render :edit
     end
   end
@@ -97,5 +99,12 @@ class Admin::SoundsController < Admin::ForestController
 
   def set_sound
     @sound = Sound.find(params[:id])
+  end
+
+  def load_sound_ratings
+    @sound_ratings_pagy, @sound_ratings = pagy(
+      @sound.sound_ratings.order(created_at: :desc),
+      page_param: :sound_ratings_page
+    )
   end
 end

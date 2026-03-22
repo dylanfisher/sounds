@@ -5,7 +5,7 @@
       <%= f.error(:base) %>
     </div>
   <% end %>
-  <div class="row small-gutters">
+  <div class="row small-gutters mb-3">
     <%= render 'admin/shared/edit/sidebar', f: f, record: @sound %>
     <div class="col-md-9">
       <div class="card">
@@ -31,7 +31,57 @@
                 <%= f.button :submit, class: 'btn-success d-md-none' %>
               </div>
             </div>
+
             <% unless f.object.new_record? %>
+              <hr>
+              <div class="row small-gutters">
+                <div class="col">
+                  <h2 class="h4">Ratings</h2>
+                  <p class="mb-2">
+                    <strong>Average:</strong> <%= @sound.stars || 0 %>/5
+                    &nbsp;
+                    <strong>Total ratings:</strong> <%= @sound.sound_ratings.count %>
+                  </p>
+
+                  <% if @sound_ratings.any? %>
+                    <div class="table-responsive">
+                      <table class="table table-sm table-striped">
+                        <thead>
+                          <tr>
+                            <th>When</th>
+                            <th>Rating</th>
+                            <th>IP</th>
+                            <th>Browser ID</th>
+                            <th>User Agent</th>
+                            <th>Referrer</th>
+                            <th></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <% @sound_ratings.each do |rating| %>
+                            <tr>
+                              <td class="text-nowrap"><%= forest_date(rating.created_at) %></td>
+                              <td><%= rating.rating %>/5</td>
+                              <td class="text-nowrap"><%= rating.ip_address.presence || '—' %></td>
+                              <td><code><%= rating.browser_identifier %></code></td>
+                              <td><%= rating.user_agent.to_s.truncate(80).presence || '—' %></td>
+                              <td><%= rating.referrer.to_s.truncate(80).presence || '—' %></td>
+                              <td class="text-nowrap">
+                                <%= link_to 'Edit', edit_admin_sound_rating_path(rating), class: 'btn btn-xs btn-primary', role: 'button' %>
+                              </td>
+                            </tr>
+                          <% end %>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <%= pagy_bootstrap_nav_js(@sound_ratings_pagy).html_safe if @sound_ratings_pagy.pages > 1 %>
+                  <% else %>
+                    <p class="mb-0">No ratings yet.</p>
+                  <% end %>
+                </div>
+              </div>
+
               <hr>
               <div class="row small-gutters">
                 <div class="col">

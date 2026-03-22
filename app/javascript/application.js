@@ -8,4 +8,5 @@ import './main';
 // import './partials/lazy_load_images';
 // import './partials/lazy_load_content';
 // import './partials/lazy_load_videos';
+import './partials/sound_ratings'
 import './partials/waveform_analyzer'

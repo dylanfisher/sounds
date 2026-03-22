@@ -42,3 +42,45 @@
 .play-sound-button {
   min-width: 60px;
 }
+
+.sounds-table__hint {
+  border-radius: 50%;
+  cursor: help;
+  display: inline-flex;
+  font-size: 10px;
+  height: 14px;
+  justify-content: center;
+  line-height: 1;
+  margin-left: 4px;
+  width: 14px;
+  vertical-align: top;
+  background: black;
+  color: white;
+  font-weight: bold;
+  font-size: 10px;
+  font-family: monospace;
+  border: 0;
+  line-height: 1.4em;
+}
+
+.sound-rating {
+  color: #808080;
+  cursor: pointer;
+  user-select: none;
+}
+
+.sound-rating.is-hovering {
+  color: #0000ff;
+}
+
+.sound-rating.is-rated {
+  color: #0000ff;
+  cursor: default;
+}
+
+.sound-rating__value {
+  display: inline-block;
+  font-size: 15px;
+  letter-spacing: 1px;
+  line-height: 1.2;
+}

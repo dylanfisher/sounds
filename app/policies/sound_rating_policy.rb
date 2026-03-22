@@ -1,0 +1,2 @@
+class SoundRatingPolicy < BlockRecordPolicy
+end

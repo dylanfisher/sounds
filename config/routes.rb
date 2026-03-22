@@ -1,7 +1,15 @@
 Rails.application.routes.draw do
+  # TODO: sort these new admin routes
+  namespace :admin do
+    resources :sound_ratings
+  end
   root to: 'home_pages#show'
 
   resources :sounds, only: :show do
+    member do
+      post 'rate'
+    end
+
     collection do
       get 'waveforms'
     end

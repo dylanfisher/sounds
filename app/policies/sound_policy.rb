@@ -6,4 +6,8 @@ class SoundPolicy < BlockRecordPolicy
   def waveforms?
     true
   end
+
+  def rate?
+    true
+  end
 end
