@@ -52,7 +52,7 @@
                 <div class="sound-current-time"></div>
               </td>
               <td>
-                <%= content_tag :div, nil, class: 'sound w-100', data: { url: sound.media_item.attachment.url } %>
+                <%= content_tag :div, nil, class: 'sound w-100', data: { url: sound.media_item.attachment.url, duration: sound.media_item.sound_metadata.try(:[], 'length').to_f } %>
               </td>
             <% end %>
             <%= content_tag :tr, class: 'd-none sound-tr', data: { id: sound.id } do %>
