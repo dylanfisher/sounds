@@ -37,6 +37,41 @@ class Admin::SoundsController < Admin::ForestController
     end
   end
 
+  def bulk_upload
+    authorize Sound, :create?
+
+    files = Array(params[:files]).compact
+
+    if files.blank?
+      render json: { created_count: 0, errors: ['Please choose one or more MP3 files.'] }, status: :unprocessable_entity
+      return
+    end
+
+    created_sounds = []
+    errors = []
+
+    files.each do |file|
+      begin
+        created_sounds << Sounds::CreateFromUploadedMp3.new(uploaded_file: file).call
+      rescue StandardError => e
+        errors << "#{file.original_filename}: #{e.message}"
+      end
+    end
+
+    status =
+      if created_sounds.any?
+        :ok
+      else
+        :unprocessable_entity
+      end
+
+    render json: {
+      created_count: created_sounds.count,
+      created_sound_ids: created_sounds.map(&:id),
+      errors: errors
+    }, status: status
+  end
+
   def update
     authorize @sound
 

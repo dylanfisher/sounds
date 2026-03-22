@@ -1,1 +1,30 @@
 // Admin overrides
+
+.admin-sounds-bulk-upload {
+  border: 2px dashed rgba(#0d6efd, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+  transition: border-color 150ms ease, background-color 150ms ease, opacity 150ms ease;
+
+  &.is-dragover {
+    background: rgba(#0d6efd, 0.06);
+    border-color: rgba(#0d6efd, 0.65);
+  }
+
+  &.is-uploading {
+    opacity: 0.7;
+  }
+
+  &.is-error .admin-sounds-bulk-upload__status {
+    color: #b02a37 !important;
+  }
+}
+
+.admin-sounds-bulk-upload__controls {
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.admin-sounds-bulk-upload__copy {
+  font-size: 14px;
+}

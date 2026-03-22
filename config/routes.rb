@@ -10,6 +10,7 @@ Rails.application.routes.draw do
   namespace :admin do
     resources :artists
     resources :sounds do
+      post 'bulk_upload', on: :collection
       get 'reprocess_mp3', on: :member
     end
   end

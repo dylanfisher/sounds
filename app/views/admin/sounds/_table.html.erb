@@ -1,4 +1,25 @@
-<div class="table-responsive">
+<div
+  id="admin-sounds-bulk-upload"
+  class="table-responsive admin-sounds-bulk-upload"
+  data-upload-url="<%= bulk_upload_admin_sounds_path %>"
+>
+  <div class="admin-sounds-bulk-upload__controls d-flex align-items-center justify-content-between flex-wrap">
+    <div class="admin-sounds-bulk-upload__copy">
+      Drag and drop MP3s anywhere in this table area to create sounds automatically.
+    </div>
+    <div class="admin-sounds-bulk-upload__actions">
+      <button type="button" class="btn btn-outline-primary btn-sm admin-sounds-bulk-upload__button">
+        Choose MP3s
+      </button>
+      <input
+        type="file"
+        class="d-none admin-sounds-bulk-upload__input"
+        accept=".mp3,audio/mpeg"
+        multiple
+      >
+    </div>
+  </div>
+  <div class="admin-sounds-bulk-upload__status text-muted small mb-2" aria-live="polite"></div>
   <%= content_tag :table, class: 'forest-table table table-striped table-sm' do %>
     <thead>
       <tr>
@@ -29,7 +50,7 @@
           <td><%= sound.title %></td>
           <td><%= sound.artist.try(:name) %></td>
           <td><%= sound.date %></td>
-          <td><%= sound.description.split(' ').length %> words</td>
+          <td><%= sound.description.to_s.split(' ').length %> words</td>
           <td><%= sound.waveform.present? ? '✅' : '⚠️' %></td>
           <td><%= sound.media_item.sound_metadata.present? ? '✅' : '⚠️' %></td>
           <td><%= forest_date sound.created_at %></td>

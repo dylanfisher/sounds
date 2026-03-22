@@ -12,6 +12,8 @@ class MediaItem < Forest::ApplicationRecord
 
     mp3_info = Mp3Info.open(URI.open(self.attachment.url))
     json = mp3_info.as_json.except(*['tag2', 'tag3', 'tag4', 'tag5'])
-    self.update(sound_metadata: json)
+    return if sound_metadata == json
+
+    update_columns(sound_metadata: json, updated_at: Time.current)
   end
 end
