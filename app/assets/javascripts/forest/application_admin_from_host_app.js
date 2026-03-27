@@ -20,6 +20,33 @@ $(function() {
     $fileInput.prop('disabled', isUploading)
   }
 
+  var normalizedErrorMessage = function(xhr, fallbackMessage) {
+    if ( xhr && xhr.status === 413 ) {
+      return 'Upload rejected (413 Content Too Large). Try fewer files at once or smaller files.'
+    }
+
+    var data = (xhr && xhr.responseJSON) || {}
+    var errors = data.errors || []
+    return errors.join(' ') || fallbackMessage
+  }
+
+  var uploadSingleFile = function(file) {
+    var formData = new FormData()
+    formData.append('files[]', file)
+
+    return $.ajax({
+      url: $upload.data('upload-url'),
+      type: 'POST',
+      data: formData,
+      processData: false,
+      contentType: false,
+      headers: {
+        'X-CSRF-Token': csrfToken,
+        'Accept': 'application/json'
+      }
+    })
+  }
+
   var uploadFiles = function(fileList) {
     var files = Array.from(fileList).filter(function(file) {
       return file.name.match(/\.mp3$/i) || file.type === 'audio/mpeg'
@@ -30,47 +57,50 @@ $(function() {
       return
     }
 
-    var formData = new FormData()
+    var createdCount = 0
+    var errors = []
+    var currentIndex = 0
 
-    files.forEach(function(file) {
-      formData.append('files[]', file)
-    })
-
-    setUploadingState(true)
-    setStatus(`Uploading ${files.length} MP3${files.length === 1 ? '' : 's'}...`, false)
-
-    $.ajax({
-      url: $upload.data('upload-url'),
-      type: 'POST',
-      data: formData,
-      processData: false,
-      contentType: false,
-      headers: {
-        'X-CSRF-Token': csrfToken,
-        'Accept': 'application/json'
-      },
-      success: function(data) {
-        var createdCount = data.created_count || 0
-        var errors = data.errors || []
-
+    var uploadNext = function() {
+      if ( currentIndex >= files.length ) {
         if ( errors.length ) window.alert(errors.join('\n'))
 
-        setStatus(`Created ${createdCount} sound${createdCount === 1 ? '' : 's'}. Reloading...`, false)
-        window.setTimeout(function() {
-          window.location.reload()
-        }, 500)
-      },
-      error: function(xhr) {
-        var data = xhr.responseJSON || {}
-        var message = (data.errors || ['Upload failed.']).join(' ')
+        if ( createdCount > 0 ) {
+          setStatus(`Created ${createdCount} sound${createdCount === 1 ? '' : 's'}. Reloading...`, false)
+          window.setTimeout(function() {
+            window.location.reload()
+          }, 500)
+        } else {
+          setStatus(errors.join(' ') || 'No sounds were created.', true)
+        }
 
-        setStatus(message, true)
-      },
-      complete: function() {
         setUploadingState(false)
         $fileInput.val('')
+        return
       }
-    })
+
+      var file = files[currentIndex]
+      setStatus(`Uploading ${currentIndex + 1}/${files.length}: ${file.name}`, false)
+
+      uploadSingleFile(file)
+        .done(function(data) {
+          createdCount += data.created_count || 0
+          var responseErrors = data.errors || []
+          if ( responseErrors.length ) {
+            errors = errors.concat(responseErrors)
+          }
+        })
+        .fail(function(xhr) {
+          errors.push(`${file.name}: ${normalizedErrorMessage(xhr, 'Upload failed.')}`)
+        })
+        .always(function() {
+          currentIndex += 1
+          uploadNext()
+        })
+    }
+
+    setUploadingState(true)
+    uploadNext()
   }
 
   $button.on('click', function(event) {
