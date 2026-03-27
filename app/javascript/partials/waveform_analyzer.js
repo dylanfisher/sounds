@@ -193,7 +193,7 @@ App.pageLoad.push(function() {
 
     if ( !state ) return
 
-    if ( activeSoundId === state.soundId && activeAudioUrl === state.url && !audioBusy ) {
+    if ( activeSoundId === state.soundId && activeAudioUrl === state.url ) {
       if ( audio.paused || audio.ended ) {
         safeAudioPlay()
       } else {

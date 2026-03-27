@@ -12,6 +12,10 @@ Is it music?
 
 `git push dokku main`
 
+### Logs
+
+dokku logs sounds -t -n 200
+
 ### Download a database backup to local
 
 ```

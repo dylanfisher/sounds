@@ -41,7 +41,7 @@ module Sounds
       if loop_loop_loop_title.present?
         {
           title: loop_loop_loop_title,
-          date: parse_loop_loop_loop_date!(loop_loop_loop_title),
+          date: parse_loop_loop_loop_date(loop_loop_loop_title),
           artist: find_or_create_artist!('Loop Loop Loop')
         }
       else
@@ -53,7 +53,7 @@ module Sounds
       end
     end
 
-    def parse_loop_loop_loop_date!(title)
+    def parse_loop_loop_loop_date(title)
       segments = title.split('-')
       meridiem = segments[-1].to_s.upcase
       second = integer_segment(segments[-2])
@@ -65,17 +65,23 @@ module Sounds
 
       valid_time_segments = [month, day, year, hour, minute, second].all?(&:present?)
 
-      unless %w[AM PM].include?(meridiem) && valid_time_segments
-        raise ArgumentError, "Could not parse loop-loop-loop export date from #{filename}."
-      end
+      return loop_loop_loop_fallback_date unless %w[AM PM].include?(meridiem) && valid_time_segments
 
       Date.new(year, month, day)
     rescue Date::Error
-      raise ArgumentError, "Could not parse loop-loop-loop export date from #{filename}."
+      loop_loop_loop_fallback_date
     end
 
     def integer_segment(value)
       Integer(value, exception: false)
+    end
+
+    def loop_loop_loop_fallback_date
+      Rails.logger.warn(
+        "Could not parse loop-loop-loop export date from #{filename}. " \
+        'Falling back to current date. Expected date segment like YYYY-MM-DD.'
+      )
+      Date.current
     end
 
     def find_or_create_artist!(name)
