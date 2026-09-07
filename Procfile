@@ -1,2 +1,2 @@
-web: bin/bundle exec puma -C config/puma.rb
-release: bin/bundle exec rake db:migrate; bin/bundle exec rails forest:cache:clear
+web: bundle exec puma -C config/puma.rb
+release: bundle exec rake db:migrate; bundle exec rails forest:cache:clear
