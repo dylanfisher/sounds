@@ -6,7 +6,7 @@ gem "rails", "~> 8.0"
 gem "forest", "~> 3.0", git: "https://github.com/dylanfisher/forest.git", branch: "master"
 gem "sprockets-rails"
 gem "pg", "~> 1.1"
-gem "puma", "~> 7"
+gem "puma"
 gem "bootsnap", require: false
 gem "dartsass-sprockets"
 gem "terser"

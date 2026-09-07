@@ -14,7 +14,7 @@ Is it music?
 
 ### Logs
 
-dokku logs sounds -t -n 200
+`dokku logs sounds -t -n 200`
 
 ### Download a database backup to local
 
