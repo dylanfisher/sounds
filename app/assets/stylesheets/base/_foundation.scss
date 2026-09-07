@@ -1,5 +1,7 @@
 // Foundation
 
+@use "../core/index" as *;
+
 *, *::before, *::after {
   box-sizing: border-box;
 }

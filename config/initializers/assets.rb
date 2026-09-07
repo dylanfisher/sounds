@@ -11,3 +11,9 @@ Rails.application.config.assets.paths << Rails.root.join("node_modules")
 # application.js, application.css, and all non-JS/CSS in the app/assets
 # folder are already added.
 # Rails.application.config.assets.precompile += %w( admin.js admin.css )
+
+# Silence Sass deprecation warnings raised inside dependencies (e.g. Bootstrap 5
+# still uses @import and legacy built-in functions internally). Note that
+# dartsass-sprockets resolves every file through its importer, so this also
+# covers app partials; only the entry stylesheet itself still reports warnings.
+Rails.application.config.sass.quiet_deps = true

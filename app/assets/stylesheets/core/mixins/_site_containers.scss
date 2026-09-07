@@ -1,5 +1,8 @@
 // Site containers
 
+@use "../variables" as *;
+@use "breakpoints" as *;
+
 @mixin site-max-width {
   width: 100%;
   max-width: $site-max-width;

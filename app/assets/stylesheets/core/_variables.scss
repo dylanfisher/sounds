@@ -1,3 +1,5 @@
+@use "sass:map";
+
 /////////////////////////////////////////////////////////////////////////
 //
 // Bootstrap overrides
@@ -9,7 +11,7 @@
 $spacer: 1rem;
 $spacers: () !default;
 // stylelint-disable-next-line scss/dollar-variable-default
-$spacers: map-merge(
+$spacers: map.merge(
   (
     0: 0,
     1: ($spacer * .25),
@@ -50,8 +52,8 @@ $gutter: 15px;
 $site-max-width: 1400px;
 $site-padding-md: 30px;
 
-// $page-content-margin: map-get($spacers, 6);
-// $page-content-margin-md: map-get($spacers, 8);
+// $page-content-margin: map.get($spacers, 6);
+// $page-content-margin-md: map.get($spacers, 8);
 
 $block-margin: 80px;
 $block-margin-md: 120px;

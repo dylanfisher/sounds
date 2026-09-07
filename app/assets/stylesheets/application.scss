@@ -1,26 +1,28 @@
 // Core - fonts, variables, mixins, etc. These shouldn't output any CSS on their own.
-@import "core/fonts";
-@import "core/variables";
-@import "core/mixins";
+@use "core/fonts";
+@use "core/variables";
+@use "core/mixins";
 
-// Vendor
-@import "vendor/**/*";
+// Vendor - add one `@use "vendor/<name>";` line per file
+// (Sprockets glob imports are not supported by `@use`.)
 
 // Bootstrap 5 Grid
-@import "bootstrap/grid";
+@use "bootstrap/grid";
 
 // Base - basic foundation and structural styles
-@import "base/normalize";
-@import "base/typography";
-@import "base/foundation";
-@import "base/helper_classes";
-@import "base/blocks";
+@use "base/normalize";
+@use "base/typography";
+@use "base/foundation";
+@use "base/helper_classes";
+@use "base/blocks";
 
 // Partials - reusable partials and page elements
-@import "partials/**/*";
+@use "partials/image_and_videos";
+@use "partials/markdown";
+@use "partials/sounds_table";
 
 // Blocks - styles that apply to specific blocks
-@import "blocks/**/*";
+// Add one `@use "blocks/<name>";` line per file.
 
 // Pages - styles that apply to specific pages
-@import "pages/**/*";
+// Add one `@use "pages/<name>";` line per file.

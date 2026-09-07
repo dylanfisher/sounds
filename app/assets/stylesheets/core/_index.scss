@@ -1,0 +1,5 @@
+// Core entry point. Load everything with:
+//   @use "../core/index" as *;
+// so variables and mixins are available without a namespace.
+@forward "variables";
+@forward "mixins";

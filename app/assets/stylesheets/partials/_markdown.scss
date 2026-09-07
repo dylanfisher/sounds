@@ -1,5 +1,8 @@
 // Markdown
 
+@use "sass:map";
+@use "../core/index" as *;
+
 .markdown {
   a {
     @include default-link;
@@ -23,7 +26,7 @@
   }
 
   hr {
-    margin-top: map-get($spacers, 8);
-    margin-bottom: map-get($spacers, 8);
+    margin-top: map.get($spacers, 8);
+    margin-bottom: map.get($spacers, 8);
   }
 }

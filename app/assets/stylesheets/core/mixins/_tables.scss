@@ -1,5 +1,7 @@
 // Tables
 
+@use "../variables" as *;
+
 @mixin default-table {
   width: 100%;
   border-collapse: collapse;
