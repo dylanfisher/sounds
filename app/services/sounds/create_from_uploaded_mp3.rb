@@ -2,7 +2,7 @@ module Sounds
   class CreateFromUploadedMp3
     LOOP_LOOP_LOOP_FILENAME_PATTERN = /\Aloop-loop-loop-(?:export|recording)_(.+)\z/i
     # e.g. 2026-09-06_mulch-export-1802_South-Yarrow_Put-Your-Hands-Down
-    # => title "1802_South-Yarrow_Put-Your-Hands-Down"
+    # => title "2026-09-06_mulch-export-1802_South-Yarrow_Put-Your-Hands-Down"
     MULCH_FILENAME_PATTERN = /\A(\d{4}-\d{2}-\d{2})_mulch-(?:export|recording)-(\d+)_(.+)\z/i
 
     def initialize(uploaded_file:)
@@ -43,7 +43,7 @@ module Sounds
     def build_sound_attributes
       if mulch_match.present?
         {
-          title: "#{mulch_match[2]}_#{mulch_match[3]}",
+          title: filename_base,
           date: parse_mulch_date(mulch_match[1]),
           artist: find_or_create_artist!('mulch')
         }
